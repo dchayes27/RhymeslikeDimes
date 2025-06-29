@@ -23,9 +23,9 @@ export const useRhymes = () => {
     abortControllerRef.current = new AbortController();
 
     try {
-      // Use environment variable if available, otherwise fall back to /api route
-      const baseURL = import.meta.env.VITE_API_URL || '';
-      const apiUrl = baseURL ? `${baseURL}/api/analyze` : '/api/analyze';
+      // Use environment variable if available, otherwise use Railway URL
+      const baseURL = import.meta.env.VITE_API_URL || 'https://rhymeslikedimes-production.up.railway.app';
+      const apiUrl = `${baseURL}/api/analyze`;
       
       console.log('Making API request to:', apiUrl); // Debug log
       
