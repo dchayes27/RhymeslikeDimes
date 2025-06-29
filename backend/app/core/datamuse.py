@@ -12,7 +12,8 @@ class DatamuseClient:
     
     def _is_perfect_rhyme(self, word1: str, word2: str) -> bool:
         """
-        Check if two words are perfect rhymes (all syllables match phonetically).
+        Check if two words are perfect rhymes optimized for rap/poetry.
+        Includes DOOM-style slant rhymes and assonance patterns.
         """
         try:
             phones1 = pronouncing.phones_for_word(word1.lower())
@@ -24,36 +25,123 @@ class DatamuseClient:
             # Get the primary pronunciation for each word
             phone1 = phones1[0]
             phone2 = phones2[0]
+            phonemes1 = phone1.split()
+            phonemes2 = phone2.split()
             
-            # For perfect rhyme, the rhyming parts should be nearly identical
-            # and cover most/all of the shorter word
+            # Get rhyming parts (from stressed vowel to end)
             rhyme1 = pronouncing.rhyming_part(phone1)
             rhyme2 = pronouncing.rhyming_part(phone2)
             
-            if not rhyme1 or not rhyme2 or rhyme1 != rhyme2:
+            if not rhyme1 or not rhyme2:
                 return False
             
-            # Calculate what percentage of each word the rhyming part covers
+            # Calculate syllable and phoneme counts
             syllables1 = pronouncing.syllable_count(phone1)
             syllables2 = pronouncing.syllable_count(phone2)
             rhyme_syllables = pronouncing.syllable_count(rhyme1)
             
-            # For perfect rhyme, the rhyming part should cover most of both words
-            # (at least 70% for shorter words, and they should be close in syllable count)
-            min_syllables = min(syllables1, syllables2)
-            max_syllables = max(syllables1, syllables2)
+            # Count phonemes in rhyming parts for ending strength analysis
+            rhyme1_phonemes = rhyme1.split()
+            rhyme2_phonemes = rhyme2.split()
             
-            # Perfect rhymes should:
-            # 1. Have the same rhyming part
-            # 2. Cover most of the shorter word (80%+ for 1-2 syllables, 60%+ for longer)
-            # 3. Not differ by more than 1 syllable
-            if max_syllables - min_syllables > 1:
-                return False
+            # Find common suffix (ending phonemes that match)
+            common_suffix_length = 0
+            min_phoneme_len = min(len(rhyme1_phonemes), len(rhyme2_phonemes))
             
-            coverage_threshold = 0.8 if min_syllables <= 2 else 0.6
-            coverage = rhyme_syllables / min_syllables
+            for i in range(1, min_phoneme_len + 1):
+                if rhyme1_phonemes[-i] == rhyme2_phonemes[-i]:
+                    common_suffix_length = i
+                else:
+                    break
             
-            return coverage >= coverage_threshold
+            # DOOM-STYLE SLANT RHYME PATTERNS
+            # Check for assonance (vowel similarity) and consonance (consonant similarity)
+            vowels1 = [p for p in phonemes1 if any(char.isdigit() for char in p)]
+            vowels2 = [p for p in phonemes2 if any(char.isdigit() for char in p)]
+            consonants1 = [p for p in phonemes1 if not any(char.isdigit() for char in p)]
+            consonants2 = [p for p in phonemes2 if not any(char.isdigit() for char in p)]
+            
+            # Check for ending consonant similarity (very important in rap)
+            ending_consonant_match = False
+            if consonants1 and consonants2:
+                ending_consonant_match = consonants1[-1] == consonants2[-1]
+            
+            # Check for vowel assonance (main vowel sounds)
+            vowel_assonance = False
+            if vowels1 and vowels2:
+                # Compare main vowel sound (remove stress markers)
+                main_vowel1 = vowels1[-1][:-1] if vowels1[-1][-1].isdigit() else vowels1[-1]
+                main_vowel2 = vowels2[-1][:-1] if vowels2[-1][-1].isdigit() else vowels2[-1]
+                vowel_assonance = main_vowel1 == main_vowel2
+            
+            # MULTI-SYLLABLE RAP RHYME LOGIC (most important use case)
+            if syllables1 >= 2 and syllables2 >= 2:
+                # Case 1: Perfect rhyming parts match (revolutionary/evolutionary)
+                if rhyme1 == rhyme2:
+                    if rhyme_syllables >= 2:
+                        return True  # Perfect multi-syllable ending
+                    elif rhyme_syllables == 1 and common_suffix_length >= 2:
+                        return True  # Strong single-syllable ending with multiple phonemes
+                
+                # Case 2: Strong ending match with good phoneme overlap
+                if common_suffix_length >= 3:  # 3+ phonemes = strong rap rhyme
+                    return True
+                
+                # Case 3: Good ending match for longer words
+                if common_suffix_length >= 2 and min(syllables1, syllables2) >= 3:
+                    return True  # Multi-syllable words with decent ending
+                
+                # Case 4: DOOM-style slant rhyme for multi-syllable
+                if ending_consonant_match and abs(syllables1 - syllables2) <= 1:
+                    return True  # "again/hydrogen" type patterns
+                
+                # Case 5: Traditional coverage check (more lenient for multi-syllable)
+                coverage1 = rhyme_syllables / syllables1 if syllables1 > 0 else 0
+                coverage2 = rhyme_syllables / syllables2 if syllables2 > 0 else 0
+                min_coverage = min(coverage1, coverage2)
+                
+                # Lower threshold for multi-syllable (50% instead of 65%)
+                return min_coverage >= 0.5
+            
+            # SINGLE SYLLABLE LOGIC (enhanced for DOOM patterns)
+            elif syllables1 == 1 and syllables2 == 1:
+                # Perfect match
+                if rhyme1 == rhyme2 and len(rhyme1_phonemes) >= 2:
+                    return True
+                
+                # DOOM-style single syllable slant rhymes
+                if ending_consonant_match:  # "man/in", "tear/year"
+                    return True
+                
+                if vowel_assonance:  # "til/in" - same vowel sound is enough for DOOM
+                    return True
+                
+                # Strong phoneme overlap
+                if common_suffix_length >= 2:
+                    return True
+            
+            # MIXED SYLLABLE LOGIC (single + multi)
+            else:
+                max_syllables = max(syllables1, syllables2)
+                
+                # For mixed single/multi-syllable (like "love"/"above")
+                if max_syllables <= 4:  # Increased for "again/hydrogen"
+                    if rhyme1 == rhyme2:
+                        return True
+                    elif common_suffix_length >= 2:
+                        return True
+                    elif ending_consonant_match:  # DOOM-style mixed like "again/hydrogen"
+                        return True
+                
+                # For larger differences, require good coverage
+                coverage1 = rhyme_syllables / syllables1 if syllables1 > 0 else 0
+                coverage2 = rhyme_syllables / syllables2 if syllables2 > 0 else 0
+                min_coverage = min(coverage1, coverage2)
+                
+                return min_coverage >= 0.6
+            
+            # Fallback - should not reach here
+            return False
             
         except Exception as e:
             logger.debug(f"Error checking perfect rhyme for '{word1}' and '{word2}': {e}")
