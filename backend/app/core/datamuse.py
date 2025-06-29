@@ -1,7 +1,14 @@
 from datamuse import Datamuse
 from typing import List, Dict, Optional
 import logging
-import pronouncing
+
+# Import pronouncing with fallback
+try:
+    import pronouncing
+    pronouncing_available = True
+except ImportError:
+    pronouncing_available = False
+    logging.warning("pronouncing library not available, using basic rhyming only")
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +22,10 @@ class DatamuseClient:
         Check if two words are perfect rhymes optimized for rap/poetry.
         Includes DOOM-style slant rhymes and assonance patterns.
         """
+        # Fallback to basic rhyme logic if pronouncing not available
+        if not pronouncing_available:
+            return word1.lower().endswith(word2.lower()[-2:]) or word2.lower().endswith(word1.lower()[-2:])
+        
         try:
             phones1 = pronouncing.phones_for_word(word1.lower())
             phones2 = pronouncing.phones_for_word(word2.lower())

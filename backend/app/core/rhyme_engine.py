@@ -21,8 +21,8 @@ class RhymeEngine:
         if phyme_available:
             self.phyme = Phyme()
         
-        # Enhanced features flag - can be disabled if causing issues
-        self.enhanced_features_enabled = True
+        # Enhanced features flag - disabled by default for production stability
+        self.enhanced_features_enabled = False
     
     def sliding_ngrams(self, words: List[str], n_max: int = 3) -> List[Tuple[int, int, str]]:
         """
