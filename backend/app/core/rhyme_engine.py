@@ -98,7 +98,14 @@ class RhymeEngine:
                     # Add internal rhyme detection
                     internal_rhymes = self._find_internal_rhymes(bar, max_results)
                     if internal_rhymes:
-                        enhanced_results["_internal_rhymes"] = internal_rhymes
+                        # Convert internal rhymes to string format for API compatibility
+                        internal_rhymes_formatted = {
+                            "perfect": [f"{r['word1']} ↔ {r['word2']}" for r in internal_rhymes["perfect"]],
+                            "near": [f"{r['word1']} ↔ {r['word2']}" for r in internal_rhymes["near"]],
+                            "slant": [f"{r['word1']} ↔ {r['word2']}" for r in internal_rhymes["slant"]],
+                            "span": (0, len(bar.split()))  # Span for entire text
+                        }
+                        enhanced_results["_internal_rhymes"] = internal_rhymes_formatted
                 except Exception as e:
                     logger.warning(f"Internal rhyme detection failed: {e}")
         
