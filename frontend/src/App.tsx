@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { BarInput } from './components/BarInput';
@@ -11,7 +11,6 @@ function App() {
   const [barText, setBarText] = useState('');
   const debouncedBar = useDebounce(barText, 300);
   const { loading, rhymes, analyzeBar } = useRhymes();
-  const barInputRef = useRef<any>(null);
 
   useEffect(() => {
     if (debouncedBar) {
@@ -49,7 +48,6 @@ function App() {
 
         <div className="mb-8">
           <BarInput
-            ref={barInputRef}
             value={barText}
             onChange={setBarText}
             onInsert={handleWordInsert}
