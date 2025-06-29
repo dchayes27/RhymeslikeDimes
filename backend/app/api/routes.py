@@ -31,7 +31,9 @@ async def analyze_bar(request: AnalyzeRequest):
         )
     except Exception as e:
         logger.error(f"Error analyzing bar: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        import traceback
+        logger.error(f"Full traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
 @router.post("/suggestions/{word}")
