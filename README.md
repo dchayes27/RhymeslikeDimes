@@ -15,6 +15,8 @@ Advanced rhyme finder inspired by MF DOOM's complex rhyming patterns. Find perfe
 
 ## Quick Start
 
+> Deployed version available on Vercel!
+
 ### Prerequisites
 - Python 3.8+
 - Node.js 16+
