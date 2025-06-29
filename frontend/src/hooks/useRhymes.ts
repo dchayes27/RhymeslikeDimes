@@ -44,7 +44,13 @@ export const useRhymes = () => {
     } catch (error) {
       if (!axios.isCancel(error)) {
         console.error('Error analyzing bar:', error);
-        toast.error('Failed to analyze rhymes. Please try again.');
+        console.error('Error details:', {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status,
+          url: error.config?.url
+        });
+        toast.error(`Failed to analyze rhymes: ${error.response?.status || error.message}`);
       }
     } finally {
       setLoading(false);
