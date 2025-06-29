@@ -41,7 +41,7 @@ export const useRhymes = () => {
         }
       );
       setRhymes(response.data);
-    } catch (error) {
+    } catch (error: any) {
       if (!axios.isCancel(error)) {
         console.error('Error analyzing bar:', error);
         console.error('Error details:', {
