@@ -20,6 +20,9 @@ class RhymeEngine:
         self.phonemes = PhonemesManager()
         if phyme_available:
             self.phyme = Phyme()
+        
+        # Enhanced features flag - can be disabled if causing issues
+        self.enhanced_features_enabled = True
     
     def sliding_ngrams(self, words: List[str], n_max: int = 3) -> List[Tuple[int, int, str]]:
         """
@@ -78,13 +81,26 @@ class RhymeEngine:
                 "span": (start, end)
             }
         
-        # Add multi-word phrase rhymes for better DOOM-style matching
-        enhanced_results = self._add_multi_word_phrase_rhymes(results, words, max_results)
+        enhanced_results = results.copy()
         
-        # Add internal rhyme detection
-        internal_rhymes = self._find_internal_rhymes(bar, max_results)
-        if internal_rhymes:
-            enhanced_results["_internal_rhymes"] = internal_rhymes
+        # Only run enhanced features if enabled and no previous errors
+        if self.enhanced_features_enabled:
+            try:
+                # Add multi-word phrase rhymes for better DOOM-style matching
+                enhanced_results = self._add_multi_word_phrase_rhymes(results, words, max_results)
+            except Exception as e:
+                logger.warning(f"Multi-word phrase rhymes failed, disabling enhanced features: {e}")
+                self.enhanced_features_enabled = False
+                enhanced_results = results.copy()
+            
+            if self.enhanced_features_enabled:
+                try:
+                    # Add internal rhyme detection
+                    internal_rhymes = self._find_internal_rhymes(bar, max_results)
+                    if internal_rhymes:
+                        enhanced_results["_internal_rhymes"] = internal_rhymes
+                except Exception as e:
+                    logger.warning(f"Internal rhyme detection failed: {e}")
         
         # Sort results for better card ordering - group n-grams by base word
         sorted_results = self._sort_results_by_base_word(enhanced_results)
@@ -115,24 +131,36 @@ class RhymeEngine:
         Add DOOM-style multi-word phrase rhyming to existing results.
         Finds rhymes between phrase endings like 'krills in his hand and' → 'gazillion grand'
         """
-        enhanced_results = results.copy()
-        
-        # Extract multi-word phrases (2+ words) from results
-        multi_word_phrases = [phrase for phrase in results.keys() if len(phrase.split()) >= 2]
-        
-        for phrase in multi_word_phrases:
-            phrase_words = phrase.split()
+        try:
+            enhanced_results = results.copy()
             
-            # For each multi-word phrase, find other multi-word phrases that rhyme
-            phrase_ending_rhymes = self._find_phrase_ending_rhymes(phrase, multi_word_phrases, max_results)
+            # Extract multi-word phrases (2+ words) from results
+            multi_word_phrases = [phrase for phrase in results.keys() if len(phrase.split()) >= 2]
             
-            # Add these to the results
-            if phrase_ending_rhymes:
-                for rhyme_type, rhyme_list in phrase_ending_rhymes.items():
-                    if rhyme_list:  # Only add if there are actual rhymes
-                        enhanced_results[phrase][f"phrase_{rhyme_type}"] = rhyme_list
-        
-        return enhanced_results
+            # Limit processing to prevent timeouts
+            if len(multi_word_phrases) > 20:
+                multi_word_phrases = multi_word_phrases[:20]
+            
+            for phrase in multi_word_phrases:
+                try:
+                    phrase_words = phrase.split()
+                    
+                    # For each multi-word phrase, find other multi-word phrases that rhyme
+                    phrase_ending_rhymes = self._find_phrase_ending_rhymes(phrase, multi_word_phrases, max_results)
+                    
+                    # Add these to the results
+                    if phrase_ending_rhymes:
+                        for rhyme_type, rhyme_list in phrase_ending_rhymes.items():
+                            if rhyme_list:  # Only add if there are actual rhymes
+                                enhanced_results[phrase][f"phrase_{rhyme_type}"] = rhyme_list
+                except Exception as e:
+                    logger.debug(f"Error processing phrase '{phrase}': {e}")
+                    continue
+            
+            return enhanced_results
+        except Exception as e:
+            logger.warning(f"Multi-word phrase enhancement failed: {e}")
+            return results.copy()
     
     def _find_phrase_ending_rhymes(self, target_phrase: str, candidate_phrases: List[str], max_results: int) -> Dict[str, List[str]]:
         """
