@@ -93,21 +93,7 @@ class RhymeEngine:
                 self.enhanced_features_enabled = False
                 enhanced_results = results.copy()
             
-            if self.enhanced_features_enabled:
-                try:
-                    # Add internal rhyme detection
-                    internal_rhymes = self._find_internal_rhymes(bar, max_results)
-                    if internal_rhymes:
-                        # Convert internal rhymes to string format for API compatibility
-                        internal_rhymes_formatted = {
-                            "perfect": [f"{r['word1']} ↔ {r['word2']}" for r in internal_rhymes["perfect"]],
-                            "near": [f"{r['word1']} ↔ {r['word2']}" for r in internal_rhymes["near"]],
-                            "slant": [f"{r['word1']} ↔ {r['word2']}" for r in internal_rhymes["slant"]],
-                            "span": (0, len(bar.split()))  # Span for entire text
-                        }
-                        enhanced_results["_internal_rhymes"] = internal_rhymes_formatted
-                except Exception as e:
-                    logger.warning(f"Internal rhyme detection failed: {e}")
+            # Internal rhyme detection removed - all rhymes are just rhymes
         
         # Sort results for better card ordering - group n-grams by base word
         sorted_results = self._sort_results_by_base_word(enhanced_results)
