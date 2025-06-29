@@ -23,8 +23,14 @@ export const useRhymes = () => {
     abortControllerRef.current = new AbortController();
 
     try {
+      // Use environment variable if available, otherwise fall back to /api route
+      const baseURL = import.meta.env.VITE_API_URL || '';
+      const apiUrl = baseURL ? `${baseURL}/api/analyze` : '/api/analyze';
+      
+      console.log('Making API request to:', apiUrl); // Debug log
+      
       const response = await axios.post<AnalyzeResponse>(
-        '/api/analyze',
+        apiUrl,
         {
           bar,
           max_results: 7,
