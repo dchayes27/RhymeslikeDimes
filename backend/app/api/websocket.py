@@ -1,7 +1,6 @@
 from fastapi import WebSocket, WebSocketDisconnect
 from typing import Dict, Set
 import json
-import asyncio
 import logging
 from app.core.rhyme_engine import RhymeEngine
 from app.utils.config import get_settings
