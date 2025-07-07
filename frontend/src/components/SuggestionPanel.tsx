@@ -1,4 +1,4 @@
-import { } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RhymeInfo, RhymeType } from '../types';
 import { RhymeChip } from './RhymeChip';
