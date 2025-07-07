@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { BarInput } from './components/BarInput';
+import { BarInput, BarInputHandle } from './components/BarInput';
 import { SuggestionPanel } from './components/SuggestionPanel';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { useRhymes } from './hooks/useRhymes';
@@ -11,6 +11,7 @@ function App() {
   const [barText, setBarText] = useState('');
   const debouncedBar = useDebounce(barText, 300);
   const { loading, rhymes, analyzeBar } = useRhymes();
+  const barInputRef = useRef<BarInputHandle>(null);
 
   useEffect(() => {
     if (debouncedBar) {
@@ -19,10 +20,7 @@ function App() {
   }, [debouncedBar, analyzeBar]);
 
   const handleWordInsert = (word: string) => {
-    // Call the insert handler if it exists
-    if ((BarInput as any).insertHandler) {
-      (BarInput as any).insertHandler(word);
-    }
+    barInputRef.current?.insertAtCursor(word);
   };
 
   return (
@@ -48,9 +46,9 @@ function App() {
 
         <div className="mb-8">
           <BarInput
+            ref={barInputRef}
             value={barText}
             onChange={setBarText}
-            onInsert={handleWordInsert}
           />
         </div>
 

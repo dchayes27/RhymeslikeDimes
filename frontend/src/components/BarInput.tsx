@@ -1,13 +1,17 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import { motion } from 'framer-motion';
+
+export interface BarInputHandle {
+  insertAtCursor: (text: string) => void;
+}
 
 interface BarInputProps {
   value: string;
   onChange: (value: string) => void;
-  onInsert?: (text: string) => void;
 }
 
-export const BarInput: React.FC<BarInputProps> = ({ value, onChange, onInsert }) => {
+export const BarInput = forwardRef<BarInputHandle, BarInputProps>(
+  ({ value, onChange }, ref) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const cursorPositionRef = useRef<number>(0);
 
@@ -23,30 +27,24 @@ export const BarInput: React.FC<BarInputProps> = ({ value, onChange, onInsert })
     onChange(e.target.value);
   };
 
-  // Handle insert at cursor position
-  useEffect(() => {
-    if (onInsert) {
-      const insertHandler = (text: string) => {
-        if (textareaRef.current) {
-          const start = textareaRef.current.selectionStart || value.length;
-          const end = textareaRef.current.selectionEnd || value.length;
-          const newValue = value.substring(0, start) + ' ' + text + value.substring(end);
-          onChange(newValue);
-          
-          // Set cursor position after inserted text
-          setTimeout(() => {
-            const newPosition = start + text.length + 1;
-            cursorPositionRef.current = newPosition;
-            textareaRef.current?.focus();
-            textareaRef.current?.setSelectionRange(newPosition, newPosition);
-          }, 0);
-        }
-      };
-      
-      // Store the handler on the component instance
-      (BarInput as any).insertHandler = insertHandler;
+  const insertAtCursor = (text: string) => {
+    if (textareaRef.current) {
+      const start = textareaRef.current.selectionStart || value.length;
+      const end = textareaRef.current.selectionEnd || value.length;
+      const newValue = value.substring(0, start) + ' ' + text + value.substring(end);
+      onChange(newValue);
+
+      // Set cursor position after inserted text
+      setTimeout(() => {
+        const newPosition = start + text.length + 1;
+        cursorPositionRef.current = newPosition;
+        textareaRef.current?.focus();
+        textareaRef.current?.setSelectionRange(newPosition, newPosition);
+      }, 0);
     }
-  }, [value, onChange, onInsert]);
+  };
+
+  useImperativeHandle(ref, () => ({ insertAtCursor }), [insertAtCursor]);
 
   return (
     <motion.div
@@ -75,4 +73,6 @@ export const BarInput: React.FC<BarInputProps> = ({ value, onChange, onInsert })
       </div>
     </motion.div>
   );
-};
+});
+
+BarInput.displayName = 'BarInput';
