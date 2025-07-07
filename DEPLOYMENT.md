@@ -37,14 +37,17 @@ git push -u origin main
 
 ## Step 3: Update Frontend Configuration
 
-1. Update the Vercel configuration with your actual Railway URL:
-
-Edit `vercel.json` and replace:
+1. Create a `vercel.json` file in the project root with a rewrite that
+   forwards API requests to your Railway backend:
 ```json
-"destination": "https://rhymeslikedimes-production.up.railway.app/api/$1"
+{
+  "rewrites": [
+    { "source": "/api/(.*)",
+      "destination": "https://rhymeslikedimes-production.up.railway.app/api/$1" }
+  ]
+}
 ```
-
-With your actual Railway URL.
+Replace the `destination` URL with your actual Railway URL.
 
 ## Step 4: Deploy Frontend to Vercel
 
@@ -82,7 +85,7 @@ With your actual Railway URL.
 
 ### Frontend Issues
 - Check Vercel build logs
-- Verify API URL in `vercel.json` matches your Railway URL
+- Verify the API URL in your `vercel.json` rewrite matches your Railway URL
 - Check browser console for CORS errors
 
 ### CORS Issues
