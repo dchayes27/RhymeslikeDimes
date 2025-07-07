@@ -1,8 +1,6 @@
-import os
 from typing import Optional
 from pydantic_settings import BaseSettings
 from functools import lru_cache
-
 
 class Settings(BaseSettings):
     # API Configuration
@@ -20,8 +18,7 @@ class Settings(BaseSettings):
         "http://localhost:3000", 
         "http://localhost:5173",
         "https://*.vercel.app",
-        "https://rhymeslikedimes.vercel.app",
-        "*"  # Allow all origins for now
+        "https://rhymeslikedimes.vercel.app"
     ]
     
     # Redis Configuration (optional)
