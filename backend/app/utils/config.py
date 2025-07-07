@@ -20,8 +20,7 @@ class Settings(BaseSettings):
         "http://localhost:3000", 
         "http://localhost:5173",
         "https://*.vercel.app",
-        "https://rhymeslikedimes.vercel.app",
-        "*"  # Allow all origins for now
+        "https://rhymeslikedimes.vercel.app"
     ]
     
     # Redis Configuration (optional)
