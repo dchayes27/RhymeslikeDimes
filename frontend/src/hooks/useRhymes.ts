@@ -27,7 +27,9 @@ export const useRhymes = () => {
       const baseURL = import.meta.env.VITE_API_URL || 'https://rhymeslikedimes-production.up.railway.app';
       const apiUrl = `${baseURL}/api/analyze`;
       
-      console.log('Making API request to:', apiUrl); // Debug log
+      if (import.meta.env.DEV) {
+        console.debug('Making API request to:', apiUrl);
+      }
       
       const response = await axios.post<AnalyzeResponse>(
         apiUrl,
@@ -43,13 +45,9 @@ export const useRhymes = () => {
       setRhymes(response.data);
     } catch (error: any) {
       if (!axios.isCancel(error)) {
-        console.error('Error analyzing bar:', error);
-        console.error('Error details:', {
-          message: error.message,
-          response: error.response?.data,
-          status: error.response?.status,
-          url: error.config?.url
-        });
+        if (import.meta.env.DEV) {
+          console.error('Error analyzing bar:', error);
+        }
         toast.error(`Failed to analyze rhymes: ${error.response?.status || error.message}`);
       }
     } finally {
