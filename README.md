@@ -65,7 +65,6 @@ npm run dev
 - **FastAPI** - Modern Python web framework
 - **Datamuse API** - Comprehensive word-finding engine
 - **Pronouncing** - CMU dictionary interface
-- **Phyme** - Advanced rhyming patterns
 - **WebSocket** - Real-time communication
 
 ### Frontend
