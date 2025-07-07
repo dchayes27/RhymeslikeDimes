@@ -94,6 +94,7 @@ npm run dev
 Backend (`.env`):
 ```
 PORT=8001
+# Comma-separated list of allowed origins (no wildcards)
 CORS_ORIGINS=http://localhost:3000,https://yourdomain.com
 ```
 

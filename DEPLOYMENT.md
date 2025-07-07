@@ -65,6 +65,7 @@ With your actual Railway URL.
 2. Add your Vercel domain to the CORS origins
 3. Set environment variable:
    - `CORS_ORIGINS`: `https://your-vercel-app.vercel.app,http://localhost:3000`
+   - Avoid wildcard origins when `allow_credentials` is enabled
 
 ## Step 6: Test Your Deployment
 
