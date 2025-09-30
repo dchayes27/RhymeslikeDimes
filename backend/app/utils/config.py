@@ -15,11 +15,11 @@ class Settings(BaseSettings):
     
     # CORS Configuration
     cors_origins: list = [
-        "http://localhost:3000", 
+        "http://localhost:3000",
         "http://localhost:5173",
-        "https://*.vercel.app",
         "https://rhymeslikedimes.vercel.app"
     ]
+    cors_origin_regex: Optional[str] = r"https://[a-zA-Z0-9-]+\.vercel\.app"
     
     # Redis Configuration (optional)
     redis_url: Optional[str] = None
