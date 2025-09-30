@@ -29,7 +29,11 @@ export const useRhymes = () => {
         : 'https://rhymeslikedimes-production.up.railway.app';
       const baseURL = (import.meta.env.VITE_API_URL as string | undefined) || defaultBaseURL;
       const normalizedBaseURL = baseURL.replace(/\/+$/, '');
-      const apiUrl = `${normalizedBaseURL}/api/analyze`;
+      const hasApiSuffix = /\/api$/i.test(normalizedBaseURL);
+      const apiPath = hasApiSuffix ? 'analyze' : 'api/analyze';
+      const apiUrl = normalizedBaseURL
+        ? `${normalizedBaseURL}/${apiPath}`
+        : `/${apiPath}`;
       
       if (import.meta.env.DEV) {
         console.debug('Making API request to:', apiUrl);
