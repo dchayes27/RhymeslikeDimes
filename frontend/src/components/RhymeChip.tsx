@@ -10,12 +10,17 @@ interface RhymeChipProps {
   index: number;
 }
 
+const chipVariantClass: Record<RhymeType, string> = {
+  perfect: 'rhyme-chip-perfect',
+  near: 'rhyme-chip-near',
+  slant: 'rhyme-chip-slant',
+  phrase_perfect: 'rhyme-chip-phrase-perfect',
+  phrase_near: 'rhyme-chip-phrase-near',
+  phrase_slant: 'rhyme-chip-phrase-slant',
+};
+
 export const RhymeChip: React.FC<RhymeChipProps> = ({ word, type, onClick, index }) => {
-  const chipClass = clsx('rhyme-chip', {
-    'rhyme-chip-perfect': type === 'perfect',
-    'rhyme-chip-near': type === 'near',
-    'rhyme-chip-slant': type === 'slant',
-  });
+  const chipClass = clsx('rhyme-chip', chipVariantClass[type]);
 
   return (
     <motion.button

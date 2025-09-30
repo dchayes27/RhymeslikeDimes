@@ -13,4 +13,4 @@ export interface AnalyzeResponse {
   original_bar: string;
 }
 
-export type RhymeType = 'perfect' | 'near' | 'slant';
+export type RhymeType = Exclude<keyof RhymeInfo, 'span'>;

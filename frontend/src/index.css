@@ -25,4 +25,17 @@
   .rhyme-chip-slant {
     @apply bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900 dark:text-purple-200 dark:hover:bg-purple-800;
   }
+
+  .rhyme-chip-phrase-perfect {
+    @apply bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-950 dark:text-emerald-200 dark:border-emerald-700 dark:hover:bg-emerald-900;
+  }
+
+  .rhyme-chip-phrase-near {
+    @apply bg-sky-50 text-sky-700 border border-sky-300 hover:bg-sky-100 dark:bg-sky-950 dark:text-sky-200 dark:border-sky-700 dark:hover:bg-sky-900;
+  }
+
+  .rhyme-chip-phrase-slant {
+    @apply bg-fuchsia-50 text-fuchsia-700 border border-fuchsia-300 hover:bg-fuchsia-100 dark:bg-fuchsia-950 dark:text-fuchsia-200 dark:border-fuchsia-700 dark:hover:bg-fuchsia-900;
+  }
 }
+
