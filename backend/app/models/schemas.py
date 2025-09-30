@@ -12,6 +12,9 @@ class RhymeInfo(BaseModel):
     perfect: List[str] = Field(default_factory=list)
     near: List[str] = Field(default_factory=list)
     slant: List[str] = Field(default_factory=list)
+    phrase_perfect: List[str] = Field(default_factory=list, description="Multi-word perfect rhymes")
+    phrase_near: List[str] = Field(default_factory=list, description="Multi-word near rhymes")
+    phrase_slant: List[str] = Field(default_factory=list, description="Multi-word slant rhymes")
     span: Tuple[int, int] = Field(..., description="Word span indices in original bar")
 
 
