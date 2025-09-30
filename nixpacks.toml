@@ -3,6 +3,3 @@ cmd = "python main.py"
 
 [variables]
 PYTHONPATH = "/app/backend"
-
-[phases.install]
-cmds = ["python -m pip install --upgrade pip", "python -m pip install -r backend/requirements.txt"]
