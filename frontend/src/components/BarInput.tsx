@@ -29,14 +29,19 @@ export const BarInput = forwardRef<BarInputHandle, BarInputProps>(
 
   const insertAtCursor = (text: string) => {
     if (textareaRef.current) {
-      const start = textareaRef.current.selectionStart || value.length;
-      const end = textareaRef.current.selectionEnd || value.length;
-      const newValue = value.substring(0, start) + ' ' + text + value.substring(end);
+      const start = textareaRef.current.selectionStart ?? value.length;
+      const end = textareaRef.current.selectionEnd ?? value.length;
+      const needsSpacer =
+        start > 0 && !/\s/.test(value.charAt(start - 1));
+
+      const spacer = needsSpacer ? ' ' : '';
+      const newValue =
+        value.substring(0, start) + spacer + text + value.substring(end);
       onChange(newValue);
 
       // Set cursor position after inserted text
       setTimeout(() => {
-        const newPosition = start + text.length + 1;
+        const newPosition = start + spacer.length + text.length;
         cursorPositionRef.current = newPosition;
         textareaRef.current?.focus();
         textareaRef.current?.setSelectionRange(newPosition, newPosition);
