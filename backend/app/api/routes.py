@@ -1,7 +1,10 @@
+import logging
+from typing import Optional
+
 from fastapi import APIRouter, HTTPException
+
 from app.models.schemas import AnalyzeRequest, AnalyzeResponse, SuggestionRequest
 from app.core.rhyme_engine import RhymeEngine
-import logging
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -37,14 +40,16 @@ async def analyze_bar(request: AnalyzeRequest):
 
 
 @router.post("/suggestions/{word}")
-async def get_word_suggestions(word: str, request: SuggestionRequest):
+async def get_word_suggestions(word: str, request: Optional[SuggestionRequest] = None):
     """
     Get rhyme suggestions for a specific word.
     """
     try:
+        rhyme_type = request.rhyme_type if request and request.rhyme_type else "all"
+
         suggestions = rhyme_engine.get_suggestions_for_word(
             word,
-            rhyme_type=request.rhyme_type,
+            rhyme_type=rhyme_type,
             max_results=10
         )
         
