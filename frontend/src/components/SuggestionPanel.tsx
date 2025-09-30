@@ -115,7 +115,7 @@ export const SuggestionPanel: React.FC<SuggestionPanelProps> = ({
       className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700"
     >
       <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">
-        "{fragment}"
+        {fragment}
         <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
           (words {rhymeInfo.span[0]}-{rhymeInfo.span[1] - 1})
         </span>
