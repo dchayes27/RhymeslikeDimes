@@ -24,8 +24,10 @@ class AnalyzeResponse(BaseModel):
 
 
 class SuggestionRequest(BaseModel):
-    word: str = Field(..., description="Single word to get suggestions for")
-    rhyme_type: Optional[str] = Field("all", description="Type of rhyme: perfect, near, slant, or all")
+    rhyme_type: Optional[str] = Field(
+        "all",
+        description="Type of rhyme: perfect, near, slant, or all"
+    )
 
 
 class WebSocketMessage(BaseModel):
