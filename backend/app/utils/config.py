@@ -23,7 +23,7 @@ class Settings(BaseSettings):
         "https://rhymeslykedymes.com",
         "https://www.rhymeslykedymes.com"
     ]
-    cors_origin_regex: Optional[str] = r"https://[a-zA-Z0-9-]+\.vercel\.app"
+    cors_origin_regex: Optional[str] = r"https://.*\.vercel\.app"
 
     @property
     def get_cors_origins(self) -> List[str]:

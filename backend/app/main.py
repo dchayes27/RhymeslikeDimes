@@ -1,9 +1,8 @@
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
 from app.api.routes import router
-from app.api.websocket import websocket_endpoint
 from app.utils.config import get_settings
 
 # Configure logging
@@ -47,9 +46,6 @@ app.add_middleware(
 
 # Include API routes
 app.include_router(router, prefix=settings.api_prefix)
-
-# WebSocket route
-app.websocket("/ws")(websocket_endpoint)
 
 
 @app.get("/")

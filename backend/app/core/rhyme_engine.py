@@ -1,26 +1,15 @@
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple
 import logging
 import pronouncing
 from .datamuse import DatamuseClient
-from .phonemes import PhonemesManager
 
 logger = logging.getLogger(__name__)
-
-try:
-    from Phyme import Phyme
-    phyme_available = True
-except ImportError:
-    phyme_available = False
-    logger.warning("Phyme library not available, using basic rhyming only")
 
 
 class RhymeEngine:
     def __init__(self):
         self.datamuse = DatamuseClient()
-        self.phonemes = PhonemesManager()
-        if phyme_available:
-            self.phyme = Phyme()
-        
+
         # Enhanced features flag - enabled since multi-syllable detection is core functionality
         self.enhanced_features_enabled = True
     
@@ -278,163 +267,10 @@ class RhymeEngine:
                 return 0.0
             
             return common_ending / min_len
-            
+
         except Exception:
             return 0.0
-    
-    def _find_internal_rhymes(self, text: str, max_results: int = 10) -> Dict[str, List[Dict]]:
-        """
-        Find internal rhymes within a single line of text.
-        Example: "hawk men stalkin' hear that we hawkin' often" -> finds multiple internal rhyme pairs
-        """
-        words = text.split()
-        internal_rhymes = {"perfect": [], "near": [], "slant": []}
-        
-        # Limit to first 15 words to prevent timeout on long texts
-        limited_words = words[:15]
-        
-        # Compare every word with every other word in the line
-        for i, word1 in enumerate(limited_words):
-            for j, word2 in enumerate(limited_words):
-                if i >= j:  # Skip self and already compared pairs
-                    continue
-                
-                # Clean words (remove punctuation)
-                clean_word1 = word1.strip(".,!?'\"").lower()
-                clean_word2 = word2.strip(".,!?'\"").lower()
-                
-                if len(clean_word1) < 2 or len(clean_word2) < 2:
-                    continue
-                
-                # Check if they rhyme using our enhanced algorithm
-                rhyme_strength = self._classify_internal_rhyme_strength(clean_word1, clean_word2)
-                
-                if rhyme_strength > 0.3:  # Higher threshold to reduce noise
-                    rhyme_info = {
-                        "word1": word1,
-                        "word2": word2,
-                        "position1": i,
-                        "position2": j,
-                        "strength": rhyme_strength,
-                        "pattern": f"{clean_word1} → {clean_word2}"
-                    }
-                    
-                    if rhyme_strength >= 0.8:
-                        internal_rhymes["perfect"].append(rhyme_info)
-                    elif rhyme_strength >= 0.6:
-                        internal_rhymes["near"].append(rhyme_info)
-                    else:
-                        internal_rhymes["slant"].append(rhyme_info)
-        
-        # Limit results and sort by strength
-        for rhyme_type in internal_rhymes:
-            internal_rhymes[rhyme_type] = sorted(
-                internal_rhymes[rhyme_type], 
-                key=lambda x: x["strength"], 
-                reverse=True
-            )[:max_results]
-        
-        return internal_rhymes
-    
-    def _classify_internal_rhyme_strength(self, word1: str, word2: str) -> float:
-        """
-        Classify the strength of internal rhyme between two words.
-        Returns 0.0-1.0 where 1.0 is perfect rhyme.
-        """
-        # Use existing perfect rhyme check first
-        if self.datamuse._is_perfect_rhyme(word1, word2):
-            return 1.0
-        
-        # Calculate phonetic similarity for partial matches
-        phonetic_sim = self._calculate_phonetic_similarity(word1, word2)
-        
-        # Check for consonant cluster similarity (important for DOOM style)
-        consonant_sim = self._calculate_consonant_similarity(word1, word2)
-        
-        # Check for vowel pattern similarity (assonance)
-        vowel_sim = self._calculate_vowel_similarity(word1, word2)
-        
-        # Combine scores with weights
-        # Phonetic similarity is most important, consonant patterns second, vowels third
-        combined_score = (phonetic_sim * 0.5) + (consonant_sim * 0.3) + (vowel_sim * 0.2)
-        
-        return min(1.0, combined_score)
-    
-    def _calculate_consonant_similarity(self, word1: str, word2: str) -> float:
-        """Calculate similarity based on consonant patterns (for DOOM-style cluster matching)."""
-        try:
-            phones1 = pronouncing.phones_for_word(word1)
-            phones2 = pronouncing.phones_for_word(word2)
-            
-            if not phones1 or not phones2:
-                return 0.0
-            
-            # Extract consonants (phonemes without stress numbers)
-            consonants1 = [p for p in phones1[0].split() if not any(char.isdigit() for char in p)]
-            consonants2 = [p for p in phones2[0].split() if not any(char.isdigit() for char in p)]
-            
-            if not consonants1 or not consonants2:
-                return 0.0
-            
-            # Check for ending consonant similarity
-            ending_match = consonants1[-1] == consonants2[-1] if consonants1 and consonants2 else False
-            
-            # Check for consonant cluster overlap
-            common_consonants = set(consonants1) & set(consonants2)
-            total_consonants = set(consonants1) | set(consonants2)
-            
-            if not total_consonants:
-                return 0.0
-            
-            overlap_ratio = len(common_consonants) / len(total_consonants)
-            
-            # Weight ending consonant match more heavily
-            if ending_match:
-                return min(1.0, overlap_ratio + 0.3)
-            else:
-                return overlap_ratio
-            
-        except Exception:
-            return 0.0
-    
-    def _calculate_vowel_similarity(self, word1: str, word2: str) -> float:
-        """Calculate similarity based on vowel patterns (assonance)."""
-        try:
-            phones1 = pronouncing.phones_for_word(word1)
-            phones2 = pronouncing.phones_for_word(word2)
-            
-            if not phones1 or not phones2:
-                return 0.0
-            
-            # Extract vowels (phonemes with stress numbers)
-            vowels1 = [p for p in phones1[0].split() if any(char.isdigit() for char in p)]
-            vowels2 = [p for p in phones2[0].split() if any(char.isdigit() for char in p)]
-            
-            if not vowels1 or not vowels2:
-                return 0.0
-            
-            # Compare main vowel sounds (remove stress markers)
-            main_vowel1 = vowels1[-1][:-1] if vowels1[-1][-1].isdigit() else vowels1[-1]
-            main_vowel2 = vowels2[-1][:-1] if vowels2[-1][-1].isdigit() else vowels2[-1]
-            
-            if main_vowel1 == main_vowel2:
-                return 1.0
-            
-            # Check for vowel pattern similarity
-            vowel_set1 = set(v[:-1] if v[-1].isdigit() else v for v in vowels1)
-            vowel_set2 = set(v[:-1] if v[-1].isdigit() else v for v in vowels2)
-            
-            common_vowels = vowel_set1 & vowel_set2
-            total_vowels = vowel_set1 | vowel_set2
-            
-            if not total_vowels:
-                return 0.0
-            
-            return len(common_vowels) / len(total_vowels)
-            
-        except Exception:
-            return 0.0
-    
+
     def get_suggestions_for_word(self, word: str, rhyme_type: str = "all", max_results: int = 10) -> Dict[str, List[str]]:
         """
         Get rhyme suggestions for a single word.
