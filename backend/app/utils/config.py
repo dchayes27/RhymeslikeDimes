@@ -17,7 +17,9 @@ class Settings(BaseSettings):
     cors_origins: list = [
         "http://localhost:3000",
         "http://localhost:5173",
-        "https://rhymeslikedimes.vercel.app"
+        "https://rhymeslikedimes.vercel.app",
+        "https://rhymeslykedymes.com",
+        "https://www.rhymeslykedymes.com"
     ]
     cors_origin_regex: Optional[str] = r"https://[a-zA-Z0-9-]+\.vercel\.app"
     
