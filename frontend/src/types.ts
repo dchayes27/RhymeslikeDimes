@@ -2,6 +2,9 @@ export interface RhymeInfo {
   perfect: string[];
   near: string[];
   slant: string[];
+  phrase_perfect: string[];
+  phrase_near: string[];
+  phrase_slant: string[];
   span: [number, number];
 }
 
