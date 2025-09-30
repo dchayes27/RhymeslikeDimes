@@ -1,20 +1,22 @@
-from typing import Optional
+from typing import Optional, List
 from pydantic_settings import BaseSettings
 from functools import lru_cache
+import os
 
 class Settings(BaseSettings):
     # API Configuration
     api_title: str = "RhymeslikeDimes API"
     api_version: str = "1.0.0"
     api_prefix: str = "/api"
-    
+
     # Server Configuration
     host: str = "0.0.0.0"
     port: int = 8001
     reload: bool = True
-    
+
     # CORS Configuration
-    cors_origins: list = [
+    # Can be overridden with CORS_ORIGINS environment variable (comma-separated)
+    cors_origins: List[str] = [
         "http://localhost:3000",
         "http://localhost:5173",
         "https://rhymeslikedimes.vercel.app",
@@ -22,6 +24,14 @@ class Settings(BaseSettings):
         "https://www.rhymeslykedymes.com"
     ]
     cors_origin_regex: Optional[str] = r"https://[a-zA-Z0-9-]+\.vercel\.app"
+
+    @property
+    def get_cors_origins(self) -> List[str]:
+        """Get CORS origins from environment or default list"""
+        env_origins = os.environ.get("CORS_ORIGINS", "")
+        if env_origins:
+            return [origin.strip() for origin in env_origins.split(",") if origin.strip()]
+        return self.cors_origins
     
     # Redis Configuration (optional)
     redis_url: Optional[str] = None
